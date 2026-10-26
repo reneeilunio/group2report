@@ -6,14 +6,6 @@ const stops=[
 {city:"Milan",country:"Italy",visual:"MILAN",caption:"Gothic Europe",description:"The presentation uses Milan as an example of Gothic cathedral architecture through the Duomo di Milano.",fact:"The Middle Ages section identifies Gothic art as a major period and features the Duomo di Milano in Milan, Italy.",artwork:"Duomo di Milano",artist:"Gothic architectural tradition",artMark:"DUOMO",observations:{idea:"Great cathedrals were major artistic and cultural expressions of the Middle Ages.",style:"The lesson divides medieval architecture into Romanesque and Gothic periods.",context:"The Duomo di Milano is specifically shown in the presentation as a Gothic cathedral."},artistName:"Gothic Europe",artistRole:"Architecture & cultural memory",quote:"Buildings can tell stories even when no one is speaking.",bio:"The presentation places the Duomo di Milano within its discussion of Gothic cathedral architecture.",initials:"GE"}
 ];
 
-const quiz=[
-{q:"Which movement started in France and emphasized brushstrokes, color, light, and shadows?",options:["Realism","Impressionism","Futurism","Cubism"],answer:1},
-{q:"Who is featured in the lesson as the artist of David?",options:["Claude Monet","Pablo Picasso","Michelangelo","Georges Braque"],answer:2},
-{q:"Which movement used broken colors and short brush strokes?",options:["Post-Impressionism","Rococo","Fauvism","Neoclassicism"],answer:0},
-{q:"Who introduced Cubism together with Georges Braque?",options:["Vincent van Gogh","Pablo Picasso","Gino Severini","Théodore Géricault"],answer:1},
-{q:"What did Futurism highlight?",options:["The Church's authority","Greek and Roman revival","Speed, energy, dynamism and the power of machines","Accuracy of everyday reality"],answer:2}
-];
-
 let currentStop=0,visited=new Set(),quizIndex=0,quizScore=0,answered=false;
 const $=id=>document.getElementById(id);
 function scrollToId(id){$(id)?.scrollIntoView({behavior:"smooth"});}
@@ -41,37 +33,19 @@ function renderArtist(){
  $("artistQuote").textContent=`"${s.quote}"`;$("artistBio").textContent=s.bio;$("artistInitials").textContent=s.initials;scrollToId("artist");
 }
 
-function startQuiz(){quizIndex=0;quizScore=0;renderQuizQuestion();scrollToId("quiz");}
-function renderQuizQuestion(){
- const item=quiz[quizIndex];answered=false;$("quizCounter").textContent=`Question ${quizIndex+1} of ${quiz.length}`;
- $("quizQuestion").textContent=item.q;$("quizFeedback").textContent="";$("nextQuestionBtn").classList.add("hidden");$("finishQuizBtn").classList.add("hidden");
- $("quizOptions").innerHTML=item.options.map((o,i)=>`<button class="quiz-option" data-answer="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("");
- document.querySelectorAll(".quiz-option").forEach(b=>b.addEventListener("click",()=>answerQuiz(Number(b.dataset.answer))));
-}
-function answerQuiz(answer){
- if(answered)return;answered=true;const correct=quiz[quizIndex].answer;const buttons=document.querySelectorAll(".quiz-option");
- buttons[correct].classList.add("correct");
- if(answer===correct){quizScore++;$("quizFeedback").textContent="Correct! 🎨";}else{buttons[answer].classList.add("wrong");$("quizFeedback").textContent="Not quite — the highlighted answer is the one from the lesson.";}
- if(quizIndex<quiz.length-1)$("nextQuestionBtn").classList.remove("hidden");else $("finishQuizBtn").classList.remove("hidden");
-}
-function showResult(){
- $("finalScore").textContent=`${quizScore} / ${quiz.length}`;
- $("resultMessage").textContent=quizScore===5?"Perfect score. You clearly paid attention during the journey.":quizScore>=3?"Nice trip. You caught most of the important details.":"Looks like you need one more museum lap. Good thing there are no airfare costs.";
- $("passport").innerHTML=stops.map((s,i)=>`<span>${visited.has(i)?"✓":"○"} ${s.city}</span>`).join("");scrollToId("result");
-}
-function resetJourney(){visited=new Set();currentStop=0;quizIndex=0;quizScore=0;updateProgress();scrollToId("home");}
+function resetJourney(){visited=new Set();currentStop=0;updateProgress();scrollToId("home");}
 
 $("startBtn").addEventListener("click",()=>scrollToId("map"));
 document.querySelectorAll(".map-pin").forEach(pin=>pin.addEventListener("click",()=>renderStop(Number(pin.dataset.stop))));
 $("artworkBtn").addEventListener("click",renderArtwork);
 $("meetArtistBtn").addEventListener("click",renderArtist);
-$("nextStopBtn").addEventListener("click",()=>currentStop<stops.length-1?renderStop(currentStop+1):startQuiz());
+$("nextStopBtn").addEventListener("click",()=>currentStop<stops.length-1?renderStop(currentStop+1):scrollToId("map"));
 document.querySelectorAll(".observation").forEach(btn=>btn.addEventListener("click",()=>{
  const s=stops[currentStop];document.querySelectorAll(".observation").forEach(b=>b.classList.remove("active"));btn.classList.add("active");$("observationResult").textContent=s.observations[btn.dataset.observation];
 }));
 $("backToMapBtn").addEventListener("click",()=>scrollToId("map"));
-$("nextQuestionBtn").addEventListener("click",()=>{quizIndex++;renderQuizQuestion();});
-$("finishQuizBtn").addEventListener("click",showResult);
-$("replayBtn").addEventListener("click",resetJourney);
+
+
+
 $("restartBtn").addEventListener("click",resetJourney);
 updateProgress();
